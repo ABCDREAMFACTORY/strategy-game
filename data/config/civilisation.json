@@ -1,0 +1,10 @@
+{
+    "France" : {
+        "color" : "blue",
+        "cities": ["Paris"]
+    },
+    "England" : {
+        "color" : "red",
+        "cities" : ["London"]
+    }
+}
