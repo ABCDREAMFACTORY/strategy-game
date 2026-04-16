@@ -1,8 +1,9 @@
 from .Civ import Civilisation
 
 class Player:
-    def __init__(self, game, civ_name, start_position) -> None:
+    def __init__(self, game, name, civ_name, start_position) -> None:
         self.game = game
+        self.name = name
         self.civ_name = civ_name
         self.start_position = start_position
         self.civ = None
