@@ -23,7 +23,7 @@ class HUDElement:
 
 class Label(HUDElement):
     def __init__(self, id, x, y, text, is_position_relative=False):
-        super().__init__(id, x, y)
+        super().__init__(id, x, y, is_position_relative=is_position_relative)
         self.x = x
         self.y = y
         self.text = text
@@ -37,7 +37,7 @@ class Label(HUDElement):
 
 class Button(HUDElement):
     def __init__(self, id, x, y, width, height, text, func, is_position_relative=False):
-        super().__init__(id, x, y)
+        super().__init__(id, x, y, is_position_relative=is_position_relative)
         self.rect = pygame.Rect(x, y, width, height)
         self.label = Label(1,self.rect.centerx, self.rect.centery, text)
         self.func = func
@@ -54,7 +54,7 @@ class Button(HUDElement):
 
 class IntSelector(HUDElement):
     def __init__(self, id, x, y, width, height, text, value=0, min_value=None, max_value=None, is_position_relative=False):
-        super().__init__(id, x, y)
+        super().__init__(id, x, y, is_position_relative=is_position_relative)
         self.rect = pygame.Rect(x, y, width, height)
         self.label = Label(1,self.rect.centerx, self.rect.centery - 10, text)
         self.value_label = Label(2,self.rect.centerx, self.rect.centery + 10, str(value))
@@ -105,5 +105,6 @@ class HUD:
             object.render(self.screen, self.font, self.camera)
 
     def update(self, current_menu, objects: list[HUDElement], actions_pressed, camera):
+        self.camera = camera
         for object in objects:
             object.update(actions_pressed, camera)

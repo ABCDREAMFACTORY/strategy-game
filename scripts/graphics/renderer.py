@@ -45,11 +45,13 @@ class Renderer:
         self.blit(city_sprite, x, y)
 
     def render_map(self, game):
+        game_manager = game.menus["game"].game_manager
+
         lowest_visible_x, lowest_visible_y = self.camera.screen_to_game(0, 0, self.assets.tile_size, self.assets.tile_space)
         highest_visible_x, highest_visible_y = self.camera.screen_to_game(self.camera.width, self.camera.height, self.assets.tile_size, self.assets.tile_space)
-        for y in range(max(lowest_visible_y, 0), min(highest_visible_y, game.game_manager.map.height - 1) + 1):
-            for x in range(max(lowest_visible_x, 0), min(highest_visible_x, game.game_manager.map.width - 1) + 1):
-                tile = game.game_manager.map.tiles[y][x]
+        for y in range(max(lowest_visible_y, 0), min(highest_visible_y, game_manager.map.height - 1) + 1):
+            for x in range(max(lowest_visible_x, 0), min(highest_visible_x, game_manager.map.width - 1) + 1):
+                tile = game_manager.map.tiles[y][x]
                 self.render_tile(tile, x, y)
                 if tile.unit:
                     self.render_unit(tile.unit, x, y)

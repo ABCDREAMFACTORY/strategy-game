@@ -40,3 +40,8 @@ class GameState(Enum):
     IN_GAME = 1
     PAUSED = 2
     GAME_OVER = 3
+
+class Events(Enum):
+    TILE_CLICKED = 0
+    FOUNDED_CITY = 1
+    GAME_MANAGER_INITIALIZED = 2

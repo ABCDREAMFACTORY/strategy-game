@@ -1,5 +1,7 @@
 import json
 from .City import City
+from ..utils.EventManager import event_manager
+from ..core.Enums import Events
 
 class Civilisation:
     def __init__(self, game_manager, name, start_position, is_player=True) -> None:
@@ -23,8 +25,7 @@ class Civilisation:
         for tile_pos in self.game.map.get_tiles_in_radius(self._to_map_coords(pos), radius=1):
             self.game.map.get_tile(self._to_map_coords(tile_pos)).owner = self
 
-        
-        
+        event_manager.notify(Events.FOUNDED_CITY, data=self.cities[-1])
 
     def _to_map_coords(self, pos):
         if hasattr(pos, "x") and hasattr(pos, "y"):

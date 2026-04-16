@@ -1,11 +1,16 @@
 
 import pygame
 from ..graphics.renderer import Renderer
+from ..graphics.hud import HUD as hud
 from .gameManager import GameManager
 from .Camera import Camera
 from .InputHandler import InputHandler
-from ..graphics.hud import HUD as hud
-from ..Menus.Menu import MainMenu, GameSettingsMenu, GameMenu
+from ..Menus.BaseMenu.Menu import Menu
+from ..Menus.GameScreen.Game import GameMenu
+from ..Menus.MainMenuScreen.MainMenu import MainMenu
+from ..Menus.GameSettingsScreen.GameSettings import GameSettingsMenu
+from ..utils.EventManager import EventManager, event_manager
+from .Enums import Events
 
 class Game:
     def __init__(self):
@@ -29,7 +34,9 @@ class Game:
         self.renderer = Renderer(self.screen,camera=self.camera)
         self.input_handler = InputHandler(self)
         self.hud = hud(self.screen)
-        self.game_manager = None
+
+        
+
 
     def event_loop(self):
         events = pygame.event.get()
@@ -38,8 +45,6 @@ class Game:
                 self.running = False
         self.input_handler.handle_event(events)
 
-
-            
 
     def update(self):
         self.event_loop()
@@ -52,3 +57,7 @@ class Game:
 
     def quit(self):
         self.running = False
+
+
+    def initialize_game_manager(self, game_manager):
+        self.menus["game"].game_manager = game_manager

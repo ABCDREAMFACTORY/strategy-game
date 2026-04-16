@@ -3,6 +3,9 @@ import json
 from pathlib import Path
 from ..utils.SaveManager import SaveManager
 from ..map.Map import Map
+from .Enums import Events
+from ..utils.EventManager import event_manager
+
 
 
 class GameManager:
@@ -21,6 +24,9 @@ class GameManager:
         if game_file:
             self.save_manager.load_game(game_file)
 
+
+
+        event_manager.notify(Events.GAME_MANAGER_INITIALIZED, data=self)
 
     def to_dict(self) -> dict:
         return {
