@@ -27,7 +27,7 @@ class Menu:
             raise ValueError(f"Menu '{menu_name}' not found!")
     def update(self, actions_pressed):
         pass
-    def getObjectById(self, id):
+    def getObjectById(self, id) -> object:
         for obj in self.objects:
             if obj.id == id:
                 return obj
