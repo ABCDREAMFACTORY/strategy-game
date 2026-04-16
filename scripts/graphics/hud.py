@@ -53,7 +53,7 @@ class Button(HUDElement):
 
 
 class IntSelector(HUDElement):
-    def __init__(self, id, x, y, width, height, text, value=0, min_value=None, max_value=None, is_position_relative=False):
+    def __init__(self, id, x, y, width, height, text, value=0, min_value=None, max_value=None, on_click=None, is_position_relative=False):
         super().__init__(id, x, y, is_position_relative=is_position_relative)
         self.rect = pygame.Rect(x, y, width, height)
         self.label = Label(1,self.rect.centerx, self.rect.centery - 10, text)
@@ -63,6 +63,7 @@ class IntSelector(HUDElement):
         self.button_plus = Button(4,x + width - 30, y, 30, height, "+", self.increase)
         self.min_value = min_value
         self.max_value = max_value
+        self.func = on_click
 
     def render(self, screen, font, camera):
         pygame.draw.rect(screen, (100, 100, 100), self.rect)  # Background
@@ -75,6 +76,9 @@ class IntSelector(HUDElement):
         self.button_minus.on_click(mouse_pos, camera)
         self.button_plus.on_click(mouse_pos, camera)
 
+        if self.func is not None:
+            self.func()
+
     def decrease(self):
         if self.value > (self.min_value if self.min_value is not None else float('-inf')):
             self.value -= 1
@@ -84,6 +88,42 @@ class IntSelector(HUDElement):
         if self.value < (self.max_value if self.max_value is not None else float('inf')):
             self.value += 1
             self.value_label.text = str(self.value)
+
+
+class ListSelector(HUDElement):
+    def __init__(self, id, x, y, width, height, text, options: list[str], is_position_relative=False):
+        super().__init__(id, x, y, is_position_relative=is_position_relative)
+        self.rect = pygame.Rect(x, y, width, height)
+        self.label = Label(1,self.rect.centerx, self.rect.centery - 50, text)
+        self.options = [Button(i, x, y + i*height, width, height, option, lambda idx=i: self.select(idx)) for i, option in enumerate(options)]
+        self.selected_index = None
+
+    def render(self, screen, font, camera):
+        pygame.draw.rect(screen, (100, 100, 100), self.rect)  # Background
+        for option in self.options:
+            option.render(screen, font, camera)
+        self.label.render(screen, font, camera)
+        
+
+    def on_click(self, mouse_pos, camera):
+        for option in self.options:
+            option.on_click(mouse_pos, camera)
+
+    def select(self, index):
+        if not 0 <= index < len(self.options):
+            raise ValueError(f"Index {index} is out of range for options list")
+        
+        self.selected_index = index
+        print(f"Selected option: {self.options[index].label.text}")
+
+    def new_list(self, options: list[str]):
+        self.options = [Button(i, self.rect.x, self.rect.y + i*self.rect.height, self.rect.width, self.rect.height, option, lambda idx=i: self.select(idx)) for i, option in enumerate(options)]
+        self.selected_index = None
+    
+
+
+
+
 
 class CityNameLabel(Label):
     def __init__(self, id, x, y, city):
