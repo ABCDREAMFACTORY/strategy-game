@@ -43,7 +43,7 @@ class Game:
         for event in events:
             if event.type == pygame.QUIT:
                 self.running = False
-        self.input_handler.handle_event(events)
+        self.input_handler.handle_events(events)
 
 
     def update(self):
