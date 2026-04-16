@@ -25,12 +25,12 @@ class GameSettingsMenu(Menu):
             players.append(Player(self.game, name=f"player{iplayer}", civ_name="France", start_position=Position(3*iplayer,0)))
             
 
-        self.game.initialize_game_manager(GameManager(
+        GameManager(
             self.game,
             players,
             map_width=50,
             map_height=50
-        ))
+        )
         self.change_menu("game")
 
     def on_nb_players_change(self):

@@ -57,7 +57,3 @@ class Game:
 
     def quit(self):
         self.running = False
-
-
-    def initialize_game_manager(self, game_manager):
-        self.menus["game"].game_manager = game_manager
