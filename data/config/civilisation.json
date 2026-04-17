@@ -1,10 +1,42 @@
 {
-    "France" : {
-        "color" : "blue",
-        "cities": ["Paris"]
+    "France": {
+        "color": "blue",
+        "cities": ["Paris", "Lyon", "Marseille"]
     },
-    "England" : {
-        "color" : "red",
-        "cities" : ["London"]
+    "England": {
+        "color": "red",
+        "cities": ["London", "Manchester", "Liverpool"]
+    },
+    "Germany": {
+        "color": "black",
+        "cities": ["Berlin", "Munich", "Hamburg"]
+    },
+    "Italy": {
+        "color": "green",
+        "cities": ["Rome", "Milan", "Venice"]
+    },
+    "Spain": {
+        "color": "yellow",
+        "cities": ["Madrid", "Barcelona", "Seville"]
+    },
+    "Japan": {
+        "color": "white",
+        "cities": ["Tokyo", "Osaka", "Kyoto"]
+    },
+    "China": {
+        "color": "red",
+        "cities": ["Beijing", "Shanghai", "Guangzhou"]
+    },
+    "USA": {
+        "color": "blue",
+        "cities": ["New York", "Los Angeles", "Chicago"]
+    },
+    "Brazil": {
+        "color": "green",
+        "cities": ["São Paulo", "Rio de Janeiro", "Salvador"]
+    },
+    "India": {
+        "color": "orange",
+        "cities": ["Delhi", "Mumbai", "Bangalore"]
     }
 }

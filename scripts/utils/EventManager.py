@@ -29,7 +29,6 @@ class EventManager:
             store = self._event_store[event_type]
             store["data"] = data
             self._loop.call_soon_threadsafe(store["event"].set)
-            print(f"Notifying {len(self._listeners[event_type])} listeners of event '{event_type.name}' with data: {data}")
             for listener in list(self._listeners[event_type]):
                 result = listener(data)
                 if asyncio.iscoroutine(result):
