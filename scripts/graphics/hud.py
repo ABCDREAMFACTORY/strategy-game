@@ -10,9 +10,7 @@ class HUDElement:
     def render(self, screen, font, camera):
         pass
     def update(self, actions_pressed, camera):
-        if ActionType.SELECT in actions_pressed:
-            mouse_pos = pygame.mouse.get_pos()
-            self.on_click(mouse_pos, camera)
+        pass
     def on_click(self, mouse_pos, camera):
         pass
     def get_position(self, camera):
@@ -91,13 +89,13 @@ class IntSelector(HUDElement):
 
 
 class ListSelector(HUDElement):
-    def __init__(self, id, x, y, width, height, text, options: list[str], is_position_relative=False):
+    def __init__(self, id, x, y, width, height, text, options: list[str], on_click=None, is_position_relative=False):
         super().__init__(id, x, y, is_position_relative=is_position_relative)
         self.rect = pygame.Rect(x, y, width, height)
         self.label = Label(1,self.rect.centerx, self.rect.centery - 50, text)
         self.options = [Button(i, x, y + i*height, width, height, option, lambda idx=i: self.select(idx)) for i, option in enumerate(options)]
         self.selected_index = None
-
+        self.func = on_click
     def render(self, screen, font, camera):
         pygame.draw.rect(screen, (100, 100, 100), self.rect)  # Background
         for option in self.options:
@@ -106,8 +104,11 @@ class ListSelector(HUDElement):
         
 
     def on_click(self, mouse_pos, camera):
+        selected_index = self.selected_index
         for option in self.options:
             option.on_click(mouse_pos, camera)
+        if self.func is not None and selected_index != self.selected_index:
+            self.func()
 
     def select(self, index):
         if not 0 <= index < len(self.options):
@@ -121,7 +122,10 @@ class ListSelector(HUDElement):
         self.selected_index = None
     
 
-
+    def get_value(self):
+        if self.selected_index is not None and 0 <= self.selected_index < len(self.options):
+            return self.options[self.selected_index].label.text
+        return None
 
 
 
@@ -141,10 +145,20 @@ class HUD:
     def render(self, current_menu):
         if current_menu.background:
             self.screen.blit(current_menu.background, (0, 0))
-        for object in current_menu.objects:
-            object.render(self.screen, self.font, self.camera)
+        current_menu.render(self.screen, self.font, self.camera)
 
     def update(self, current_menu, objects: list[HUDElement], actions_pressed, camera):
         self.camera = camera
         for object in objects:
-            object.update(actions_pressed, camera)
+            object.update(actions_pressed, camera) 
+        self.on_click(current_menu, actions_pressed, camera)
+            
+    def on_click(self, current_menu, actions_pressed, camera):
+        if ActionType.SELECT in actions_pressed:
+            mouse_pos = pygame.mouse.get_pos()
+            if current_menu.current_popup is not None:
+                current_menu.current_popup.on_click(mouse_pos, camera)
+                return
+            
+            for obj in current_menu.objects:
+                obj.on_click(mouse_pos, camera)
