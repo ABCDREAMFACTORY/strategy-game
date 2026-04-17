@@ -60,6 +60,10 @@ class CivilizationSelectorPopup(Popup):
 
         self.player_selected = None
 
+    def show(self):
+        super().show()
+        self.getObjectById("civselector").new_list(self.menu.get_available_civilizations()) # type: ignore
+
     def on_civilization_selected(self):
         civilization = self.getObjectById("civselector").get_value() # type: ignore
         self.getObjectById("civselector").selected_index = None # type: ignore
