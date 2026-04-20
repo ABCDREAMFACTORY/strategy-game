@@ -52,7 +52,7 @@ class CivilizationSelectorPopup(Popup):
         self.game = game
         self.menu = menu
         objects = [
-            ListSelector(id="civselector", x=500, y=300, width=200, height=50, text="Select Civilization", options=self.menu.get_available_civilizations(), on_click=self.on_civilization_selected),
+            ListSelector(id="civselector", x=500, y=300, width=200, height=50, text="Select Civilization", options=["Random"] + self.menu.get_available_civilizations(), on_click=self.on_civilization_selected),
             Button(id=1, x=700, y=200, width=100, height=50, text="Close", func=self.hide)
         ]
 
@@ -62,11 +62,12 @@ class CivilizationSelectorPopup(Popup):
 
     def show(self):
         super().show()
-        self.getObjectById("civselector").new_list(self.menu.get_available_civilizations()) # type: ignore
+        self.getObjectById("civselector").new_list(["Random"]+self.menu.get_available_civilizations()) # type: ignore
 
     def on_civilization_selected(self):
-        civilization = self.getObjectById("civselector").get_value() # type: ignore
-        self.getObjectById("civselector").selected_index = None # type: ignore
+        civ_selector = self.getObjectById("civselector") # type: ignore
+        civilization = civ_selector.get_value() # type: ignore
+        civ_selector.selected_index = None # type: ignore
 
         # Handle the logic when a civilization is selected
         print(f"Civilization selected: {civilization}")
@@ -76,6 +77,8 @@ class CivilizationSelectorPopup(Popup):
 
         self.player_selected = None
         
+        self.menu.getObjectById("civselector").new_list(self.menu.get_players_labels()) # type: ignore
+
         self.hide()
 
     def get_civilizations(self):
