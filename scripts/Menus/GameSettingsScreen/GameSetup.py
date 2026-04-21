@@ -1,0 +1,121 @@
+import random
+from enum import Enum
+from ...core.Enums import ResourceType, TerrainType
+from ...core.Player import Player
+from ...core.gameManager import GameManager
+from ...core.Position import Position
+from ...core.Tile import Tile
+from ...map.Map import Map
+
+from typing import TYPE_CHECKING, cast
+if TYPE_CHECKING:
+    from ...core.game import Game
+    from ..GameScreen.Game import GameMenu
+
+class PlayerSetup:
+    def __init__(self, name: str, civ_name: str, start_pos:Position|None) -> None:
+        self.name = name
+        self.civ_name = civ_name
+        self.start_pos = start_pos
+
+    def __repr__(self) -> str:
+        return f"PlayerSetup(name={self.name}, civ_name={self.civ_name}, start_pos={self.start_pos})"
+    
+
+class GameSetup:
+    class MapType(Enum):
+        DEFAULT = "default"
+        RANDOM = "random"
+        ISLAND = "island"
+    class MAP_SIZE(Enum):
+        TINY = (20, 20)
+        SMALL = (50, 50)
+        MEDIUM = (100, 100)
+        LARGE = (200, 200)
+    
+    def __init__(self, game: "Game") -> None:
+        self.game = game
+        self.players: list[PlayerSetup] = [PlayerSetup(name="Player 1", civ_name="Random", start_pos=None), PlayerSetup(name="Player 2", civ_name="Random", start_pos=None)]
+        self.map_type: GameSetup.MapType = GameSetup.MapType.DEFAULT
+        self.map_size: GameSetup.MAP_SIZE = GameSetup.MAP_SIZE.SMALL
+        self.map_setup: MapSetup = MapSetup(self)
+
+    def add_player(self, name: str, civ_name: str, start_pos: Position):
+        new_player = PlayerSetup(name=name, civ_name=civ_name, start_pos=start_pos)
+        self.players.append(new_player)
+
+class TileSetup:
+    def __init__(self, terrain: TerrainType, resource: ResourceType):
+        self.terrain = terrain
+        self.resource = resource
+        self.owner = None
+        self.city = None
+    def get_neighbors(self, pos: Position, map: "MapSetup") -> list[Tile]:
+        neighbors = []
+        for dy in range(-1, 2):
+            for dx in range(-1, 2):
+                if dx == 0 and dy == 0:
+                    continue
+                neighbor_x = pos.x + dx
+                neighbor_y = pos.y + dy
+                if 0 <= neighbor_x < map.width and 0 <= neighbor_y < map.height:
+                    neighbors.append(map.tiles[neighbor_y][neighbor_x])
+        return neighbors
+    def to_tile(self) -> Tile:
+        return Tile(terrain=self.terrain, resource=self.resource, owner=self.owner, city=self.city)
+
+class MapSetup:
+    def __init__(self, game_setup: GameSetup):
+        self.game_setup = game_setup
+        self.width, self.height = game_setup.map_size.value
+        self.tiles: list[list[TileSetup]] = self.generate_map()
+    def get_tile(self, pos: Position) -> TileSetup:
+        tile = self.tiles[pos.y][pos.x]
+        if tile is None:
+            raise ValueError(f"Tile at position {pos} has not been generated yet")
+        return tile
+    
+    def generate_map(self) -> list[list[TileSetup]]:
+        tiles:list[list[TileSetup]] = [[TileSetup(TerrainType.GRASS, ResourceType.GOLD) for _ in range(self.width)] for _ in range(self.height)]
+        for y in range(self.height):
+            for x in range(self.width):
+                terrain = random.choice(list(TerrainType))
+                resource = random.choice(list(ResourceType))
+                tiles[y][x] = TileSetup(terrain=terrain, resource=resource)
+        return tiles
+    
+    def to_map(self) -> "Map":
+        return Map(width=self.width, height=self.height, tiles=[[tile.to_tile() for tile in row] for row in self.tiles])
+        
+class GameManagerInitializer:
+    def __init__(self, game: "Game", game_setup: GameSetup):
+        self.game = game
+        self.game_setup = game_setup
+        self.game_menu = self.game.menus.get("game")
+        print(self.game_setup.players)
+
+    def choose_spawn_positions(self) -> None:
+        # This function should assign a start position to each player if not already assigned
+        # For simplicity, we will just assign them in a line with a gap of 3 tiles
+        for i, player in enumerate(self.game_setup.players):
+            if player.start_pos is None:
+                pos = Position(random.randint(0, self.game_setup.map_setup.width-2), random.randint(0, self.game_setup.map_setup.height-2))
+                while not self.is_free_city_position(pos):
+                    pos = Position(random.randint(0, self.game_setup.map_setup.width-2), random.randint(0, self.game_setup.map_setup.height-2))
+                player.start_pos = pos
+    def is_free_city_position(self, pos: Position) -> bool:
+        tile = self.game_setup.map_setup.get_tile(pos)  # This will raise an error if the position is not valid
+        if tile.owner is not None:
+            return False
+        for itile in tile.get_neighbors(pos, self.game_setup.map_setup):
+            if itile.owner is not None:
+                return False
+        return True
+   
+    def initialize_game_manager(self) -> GameManager:
+        self.choose_spawn_positions()
+        players = [Player(self.game, ps.name, ps.civ_name, ps.start_pos) for ps in self.game_setup.players if ps.start_pos is not None]
+        width, height = self.game_setup.map_size.value
+        return GameManager(self.game, players, self.game_setup.map_setup.to_map(), map_width=width, map_height=height)
+
+    

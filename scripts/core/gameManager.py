@@ -18,9 +18,10 @@ class GameManager:
         self,
         game: Game,
         players: list[Player],
+        map: Map,
         game_file: Path | str | None = None,
         map_width: int = 10,
-        map_height: int = 10,
+        map_height: int = 10, 
     ):
         self.game: Game = game
         self.save_manager: SaveManager = SaveManager(game)
@@ -28,7 +29,7 @@ class GameManager:
         self.height: int = map_height
         self.current_turn: int = 0
         self.players: list[Player] = players
-        self.map: Map = Map.new_map(map_width, map_height)
+        self.map: Map = map
 
         for player in self.players:
             player.initialize_civilisation(self)
@@ -38,7 +39,6 @@ class GameManager:
 
 
         print([player.civ_name for player in self.players])
-        event_manager.notify(Events.GAME_MANAGER_INITIALIZED, data=self)
 
     def to_dict(self) -> dict[str, Any]:
         return {

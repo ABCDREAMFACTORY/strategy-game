@@ -30,7 +30,6 @@ class GameMenu(Menu):
     def reset_session(self) -> None:
         self.objects = list(self.base_objects)
         self.current_popup = None
-        self.game_manager = None
         self.camera.x = 0
         self.camera.y = 0
         self.camera.zoom = 1.0
@@ -48,8 +47,8 @@ class GameMenu(Menu):
     async def on_city_founded(self, city: City) -> None:
 
         if self.game_manager is None:
-            game_manager = await event_manager.wait_for(Events.GAME_MANAGER_INITIALIZED)
-            self.game_manager = cast(GameManager, game_manager)
+            print("Game manager not initialized yet,")
+            await event_manager.wait_for(Events.GAME_MANAGER_INITIALIZED)
 
         tile_size = self.game.renderer.assets.tile_size
         tile_space = self.game.renderer.assets.tile_space

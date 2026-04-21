@@ -8,6 +8,7 @@ from typing import Any
 from ..core.Enums import ResourceType
 from ..core.Enums import TerrainType
 from ..core.Tile import Tile
+from ..core.Position import Position
 
 
 class Map:

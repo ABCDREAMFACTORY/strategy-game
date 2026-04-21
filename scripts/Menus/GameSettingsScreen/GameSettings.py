@@ -10,6 +10,9 @@ from ...core.Player import Player
 from ...core.Position import Position
 from ...core.gameManager import GameManager
 from ...Popups.Popup import CivilizationSelectorPopup
+from ...utils.EventManager import event_manager
+from ...core.Enums import Events
+from .GameSetup import GameSetup, PlayerSetup, GameManagerInitializer
 
 if TYPE_CHECKING:
     from ...core.game import Game
@@ -18,8 +21,8 @@ if TYPE_CHECKING:
 class GameSettingsMenu(Menu):
     def __init__(self, game: Game):
         self.game: Game = game
-        self.nb_players: int = 2
-        self.players: list[Player] = self.initialize_players()
+        self.game_setup = GameSetup(game)
+        self.nb_players: int = len(self.game_setup.players)
         objects: list[Button | IntSelector | ListSelector] = [
             IntSelector(id="nbplayers", x=500, y=300, width=200, height=50, text="Number of players", value=2, min_value=2, max_value=len(self.get_civilizations()), on_click=self.on_nb_players_change),
             Button(id=1,x=500, y=400, width=200, height=50, text="Start game", func=lambda:self.start_new_game()),
@@ -29,9 +32,9 @@ class GameSettingsMenu(Menu):
         super().__init__(game, name="settings", objects=objects)
 
     def reset(self) -> None:
+        self.game_setup = GameSetup(self.game)
         self.current_popup = None
         self.nb_players = 2
-        self.players = self.initialize_players()
 
         nbplayers_selector = self.getObjectById("nbplayers")
         if isinstance(nbplayers_selector, IntSelector):
@@ -43,23 +46,15 @@ class GameSettingsMenu(Menu):
             civ_selector.new_list(self.get_players_labels())
 
     def start_new_game(self) -> None:
-        nbplayers_selector = self.getObjectById("nbplayers")
-        if not isinstance(nbplayers_selector, IntSelector):
-            raise ValueError("Number of players selector not found!")
-        
-
         self.choose_random_civilizations()
 
-        GameManager(
-            self.game,
-            self.players,
-            map_width=50,
-            map_height=50
-        )
+        game_menu = cast("GameMenu", self.game.menus["game"])
+        game_menu.reset_session()
 
-        # game_menu = self.game.menus["game"]
-        # game_menu.reset_session()
-        # game_menu.game_manager = game_manager
+
+        game_manager = GameManagerInitializer(self.game, self.game_setup).initialize_game_manager()
+        game_menu.game_manager = game_manager
+        event_manager.notify(Events.GAME_MANAGER_INITIALIZED, data=self)
         self.change_menu("game")
         self.reset()
 
@@ -73,29 +68,28 @@ class GameSettingsMenu(Menu):
         if nb < self.nb_players:
             self.add_player()
         elif nb > self.nb_players:
-            self.players.remove(self.players[-1])
+            self.game_setup.players.remove(self.game_setup.players[-1])
         
 
         civ_selector = self.getObjectById("civselector")
         if isinstance(civ_selector, ListSelector):
-            civ_selector.new_list([f"{player.name}-{player.civ_name}" for player in self.players])
+            civ_selector.new_list([f"{player.name}-{player.civ_name}" for player in self.game_setup.players])
     
     def add_player(self) -> None:
-        new_player = Player(self.game, name=f"player{self.nb_players}", civ_name="Random", start_position=Position(3*len(self.players),0))
-        self.players.append(new_player)
+        self.game_setup.add_player(name=f"Player {len(self.game_setup.players)+1}", civ_name="Random", start_pos=Position(3*(len(self.game_setup.players)),0))
+
 
     def on_civ_selector_click(self) -> None:
         civ_selector = self.getObjectById("civselector")
         if not isinstance(civ_selector, ListSelector) or civ_selector.selected_index is None:
             return
 
-        player_selected = self.players[civ_selector.selected_index]
+        player_selected = self.game_setup.players[civ_selector.selected_index]
         self.current_popup = CivilizationSelectorPopup(self.game, self, player_selected)
-
 
     def get_available_civilizations(self) -> list[str]:
         civilizations = self.get_civilizations()
-        used_civilizations = [player.civ_name for player in self.players]
+        used_civilizations = [player.civ_name for player in self.game_setup.players]
         available_civilizations = [civ for civ in civilizations if civ not in used_civilizations]
         return available_civilizations
 
@@ -115,10 +109,10 @@ class GameSettingsMenu(Menu):
     
     def choose_random_civilizations(self) -> None:
         civilizations = self.get_civilizations()
-        for player in self.players:
+        for player in self.game_setup.players:
             if player.civ_name == "Random":
                 player.civ_name = random.choice(civilizations)
                 civilizations.remove(player.civ_name)
 
     def get_players_labels(self) -> list[str]:
-        return [f"{player.name}-{player.civ_name}" for player in self.players]
+        return [f"{player.name}-{player.civ_name}" for player in self.game_setup.players]

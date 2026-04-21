@@ -1,5 +1,4 @@
 from .Enums import TerrainType, ResourceType
-
 class Tile:
     def __init__(
         self,

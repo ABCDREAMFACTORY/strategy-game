@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, cast, Any
 
 from ..graphics.hud import HUDElement, Button, ListSelector
 from ..core.Enums import ActionType
+from ..Menus.GameSettingsScreen.GameSetup import PlayerSetup
 
 if TYPE_CHECKING:
     from ..Menus.BaseMenu.Menu import Menu
@@ -50,7 +51,7 @@ class Popup:
         self.menu.current_popup = None
 
 class CivilizationSelectorPopup(Popup):
-    def __init__(self, game: Game, menu: Menu, player_selected: Player | None):
+    def __init__(self, game: Game, menu: Menu, player_selected: PlayerSetup | None):
         self.game: Game = game
         self.menu: Menu = menu
         typed_menu = cast(Any, self.menu)
