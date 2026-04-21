@@ -1,11 +1,19 @@
 
+from __future__ import annotations
+
 import pygame
+from typing import TYPE_CHECKING
+
 from .Enums import ActionType
 
+if TYPE_CHECKING:
+    from .game import Game
+
+
 class InputHandler:
-    def __init__(self, game):
-        self.game = game
-        self.actions_pressed = set()
+    def __init__(self, game: Game):
+        self.game: Game = game
+        self.actions_pressed: set[ActionType] = set()
         self.key_bindings = {
             pygame.K_z: ActionType.MOVE_CAMERA_UP,
             pygame.K_s: ActionType.MOVE_CAMERA_DOWN,
@@ -28,10 +36,10 @@ class InputHandler:
         self.mouse_bindings = {
             BUTTON_LEFT: ActionType.SELECT,
         }
-        self.is_mouse_down = False
+        self.is_mouse_down: bool = False
 
 
-    def handle_events(self, events):
+    def handle_events(self, events: list[pygame.event.Event]) -> None:
         for key, action in self.event_bindings.items():
             has_found = False
             for event in events:
@@ -39,8 +47,8 @@ class InputHandler:
             if has_found == False:
                 self.actions_pressed.discard(action)
     
-    def handle_event(self, key, action, event):
-        button = None
+    def handle_event(self, key: int, action: ActionType, event: pygame.event.Event) -> bool:
+        button: int | None = None
         if self.event_is_mouse_button(event):
             if key == pygame.MOUSEBUTTONDOWN and self.is_mouse_down == True:
                 return False
@@ -61,7 +69,7 @@ class InputHandler:
             return True
         return False
 
-    def handle_keys(self):
+    def handle_keys(self) -> None:
         keys = pygame.key.get_pressed()
         for key, action in self.key_bindings.items():
             if keys[key]:
@@ -69,5 +77,5 @@ class InputHandler:
             else:
                 self.actions_pressed.discard(action)
 
-    def event_is_mouse_button(self, event):
+    def event_is_mouse_button(self, event: pygame.event.Event) -> bool:
         return event.type in (pygame.MOUSEBUTTONDOWN, pygame.MOUSEBUTTONUP)

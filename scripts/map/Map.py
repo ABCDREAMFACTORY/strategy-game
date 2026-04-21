@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import gzip
 import json
 from random import choice
+from typing import Any
 
 from ..core.Enums import ResourceType
 from ..core.Enums import TerrainType
@@ -9,18 +12,18 @@ from ..core.Tile import Tile
 
 class Map:
     def __init__(self, width: int, height: int, tiles: list[list[Tile]]):
-        self.width = width
-        self.height = height
-        self.tiles = tiles
+        self.width: int = width
+        self.height: int = height
+        self.tiles: list[list[Tile]] = tiles
 
-    def get_tile(self, pos):
+    def get_tile(self, pos: tuple[int, int]) -> Tile:
         x, y = pos
         if 0 <= x < self.width and 0 <= y < self.height:
             return self.tiles[y][x]
         else:
             raise IndexError(f"Position {pos} is out of bounds for map of size {self.width}x{self.height}")
 
-    def get_tiles_in_radius(self, center_pos, radius):
+    def get_tiles_in_radius(self, center_pos: tuple[int, int], radius: int) -> list[tuple[int, int]]:
         cx, cy = center_pos
         tiles_in_radius = []
         for y in range(cy - radius, cy + radius + 1):
@@ -31,7 +34,7 @@ class Map:
     
     
     
-    def to_dict(self, compact: bool = True) -> dict:
+    def to_dict(self, compact: bool = True) -> dict[str, Any]:
         if compact:
             return {
                 "format": "compact-v1",
@@ -72,7 +75,7 @@ class Map:
             ],
         }
 
-    def save_map(self, filename: str, compact: bool = True):
+    def save_map(self, filename: str, compact: bool = True) -> None:
         data = self.to_dict(compact=compact)
 
         if filename.endswith(".gz"):
@@ -84,7 +87,7 @@ class Map:
             json.dump(data, f, ensure_ascii=False, separators=(",", ":"))
 
     @classmethod
-    def load_map(cls, filename: str):
+    def load_map(cls, filename: str) -> Map:
         if filename.endswith(".gz"):
             with gzip.open(filename, "rt", encoding="utf-8") as f:
                 data = json.load(f)
@@ -95,7 +98,7 @@ class Map:
         return cls.dict_to_map(data)
 
     @classmethod
-    def dict_to_map(cls, data: dict):
+    def dict_to_map(cls, data: dict[str, Any]) -> Map:
         width = data["width"]
         height = data["height"]
         tiles: list[list[Tile]] = [
@@ -135,7 +138,7 @@ class Map:
         return cls(width=width, height=height, tiles=tiles)
 
     @classmethod
-    def new_map(cls, width: int, height: int):
+    def new_map(cls, width: int, height: int) -> Map:
         return cls(
             width=width,
             height=height,
@@ -145,7 +148,7 @@ class Map:
             ],
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "\n".join(
             ["".join([f"{tile.terrain.name[0]}{tile.resource.name[0]}" for tile in row]) for row in self.tiles]
         )

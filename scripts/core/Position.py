@@ -1,8 +1,7 @@
-
-
 class Position:
-    def __init__(self,x,y):
-        self.x=x
-        self.y=y
-    def __str__(self):
+    def __init__(self, x: int, y: int) -> None:
+        self.x: int = x
+        self.y: int = y
+
+    def __str__(self) -> str:
         return f"({self.x},{self.y})"

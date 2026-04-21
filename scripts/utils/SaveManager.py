@@ -1,30 +1,32 @@
 import json
 import gzip
 from pathlib import Path
+from typing import Any
+
 from ..map.Map import Map
 
 
 class SaveManager:
-    def __init__(self, game):
-        self.game = game
-        self.default_save_path = Path("data") / "savegame.json.gz"
+    def __init__(self, game: Any):
+        self.game: Any = game
+        self.default_save_path: Path = Path("data") / "savegame.json.gz"
     
-    def to_dict(self):
+    def to_dict(self) -> dict[str, Any]:
         return self.game.to_dict()
     
-    def save(self, filename):
+    def save(self, filename: str | Path | None) -> None:
         path = Path(filename) if filename else self.default_save_path
         path.parent.mkdir(parents=True, exist_ok=True)
         data = self.to_dict()
-        if filename.endswith(".gz"):
-            with gzip.open(filename, "wt", encoding="utf-8") as f:
+        if path.suffix == ".gz":
+            with gzip.open(path, "wt", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, separators=(",", ":"))
         else:
-            with open(filename, "w", encoding="utf-8") as f:
+            with open(path, "w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, separators=(",", ":"))
 
 
-    def load_game(self, save_path: str | Path | None = None):
+    def load_game(self, save_path: str | Path | None = None) -> None:
         path = Path(save_path) if save_path else self.default_save_path
         if not path.exists():
             return
