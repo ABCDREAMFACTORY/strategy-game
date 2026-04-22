@@ -10,11 +10,13 @@ from ..core.Enums import Events
 
 if TYPE_CHECKING:
     from .gameManager import GameManager
+    from .Player import Player
 
 class Civilisation:
-    def __init__(self, game_manager: GameManager, name: str, start_position: Position, is_player: bool = True) -> None:
+    def __init__(self,player:"Player", game_manager: GameManager, name: str, start_position: Position, is_player: bool = True) -> None:
         if game_manager is None:
             raise ValueError("game_manager must be initialized before creating a Civilisation")
+        self.player = player
         self.game: GameManager = game_manager
         self.name: str = name
         data = self.get_data()
@@ -25,13 +27,15 @@ class Civilisation:
     
     def add_city(self, name: str, pos: Position | tuple[int, int]) -> None:
         for tile_pos in self.game.map.get_tiles_in_radius(self._to_map_coords(pos), radius=1):
-            if self.game.map.get_tile(self._to_map_coords(tile_pos)).owner is not None:
-                raise ValueError(f"Cannot found city '{name}' at position {pos} because tile at {tile_pos} is already owned by another civilisation")
+            owner = self.game.map.get_tile(self._to_map_coords(tile_pos)).owner
+            if owner is not self.player and owner is not None:
+                print(self.player.civ_name, owner.civ_name, tile_pos)
+                raise ValueError(f"Cannot found city '{name}' at position {pos} because tile at {tile_pos} is already owned by civilisation {owner.civ_name}")
 
         self.cities.append(City(name, pos))
         self.game.map.get_tile(self._to_map_coords(pos)).city = self.cities[-1]
         for tile_pos in self.game.map.get_tiles_in_radius(self._to_map_coords(pos), radius=1):
-            self.game.map.get_tile(self._to_map_coords(tile_pos)).owner = self
+            self.game.map.get_tile(self._to_map_coords(tile_pos)).owner = self.player
 
         event_manager.notify(Events.FOUNDED_CITY, data=self.cities[-1])
 

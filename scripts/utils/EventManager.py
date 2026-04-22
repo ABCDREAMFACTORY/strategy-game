@@ -18,7 +18,7 @@ class EventManager:
         asyncio.set_event_loop(self._loop)
         self._loop.run_forever()
 
-    def subscribe(self, event_type: Events, listener: Callable[[Any], Any]) -> None:
+    def subscribe(self, event_type: Events, listener) -> None:
         if event_type not in self._listeners:
             self._listeners[event_type] = []
         self._listeners[event_type].append(listener)
@@ -28,6 +28,7 @@ class EventManager:
             self._listeners[event_type].remove(listener)
 
     def notify(self, event_type: Events, data: Any = None) -> None:
+        print(f"Event triggered: {event_type}, data: {data}")
         if event_type in self._listeners:
             store = self._event_store[event_type]
             store["data"] = data

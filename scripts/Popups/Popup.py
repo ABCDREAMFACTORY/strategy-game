@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, cast, Any
 from ..graphics.hud import HUDElement, Button, ListSelector
 from ..core.Enums import ActionType
 from ..Menus.GameSettingsScreen.GameSetup import PlayerSetup
+from ..core.GameData import GameData
 
 if TYPE_CHECKING:
     from ..Menus.BaseMenu.Menu import Menu
@@ -54,11 +55,8 @@ class CivilizationSelectorPopup(Popup):
     def __init__(self, game: Game, menu: Menu, player_selected: PlayerSetup | None):
         self.game: Game = game
         self.menu: Menu = menu
-        typed_menu = cast(Any, self.menu)
-        if not hasattr(typed_menu, "get_available_civilizations"):
-            raise TypeError("Civilization selector popup requires a game settings menu")
 
-        available_civilizations = cast(list[str], typed_menu.get_available_civilizations())
+        available_civilizations = cast(list[str], list(GameData().data_civilizations.keys()))
         objects = [
             ListSelector(id="civselector", x=500, y=300, width=200, height=50, text="Select Civilization", options=["Random"] + available_civilizations, on_click=self.on_civilization_selected),
             Button(id=1, x=700, y=200, width=100, height=50, text="Close", func=self.close)

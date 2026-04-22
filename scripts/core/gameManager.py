@@ -31,8 +31,6 @@ class GameManager:
         self.players: list[Player] = players
         self.map: Map = map
 
-        for player in self.players:
-            player.initialize_civilisation(self)
 
         if game_file:
             self.save_manager.load_game(game_file)

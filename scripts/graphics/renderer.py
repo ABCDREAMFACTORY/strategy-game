@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from ..core.Tile import Tile
     from ..core.game import Game
     from ..Menus.GameScreen.Game import GameMenu
+    from ..core.Player import Player
 
 
 class Renderer:
@@ -71,5 +72,7 @@ class Renderer:
                 if tile.city:
                     self.render_city(tile.city, x, y)
                 if tile.owner:
-                    owner = cast(Any, tile.owner)
-                    self.render_border(x, y, owner.color)
+                    owner = cast("Player", tile.owner)
+                    if owner.civ is None:
+                        raise ValueError(f"Player {owner.name} has no civilization assigned yet")
+                    self.render_border(x, y, owner.civ.color)

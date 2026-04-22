@@ -46,15 +46,11 @@ class GameSettingsMenu(Menu):
             civ_selector.new_list(self.get_players_labels())
 
     def start_new_game(self) -> None:
-        self.choose_random_civilizations()
-
         game_menu = cast("GameMenu", self.game.menus["game"])
         game_menu.reset_session()
-
-
         game_manager = GameManagerInitializer(self.game, self.game_setup).initialize_game_manager()
         game_menu.game_manager = game_manager
-        event_manager.notify(Events.GAME_MANAGER_INITIALIZED, data=self)
+        event_manager.notify(Events.GAME_MANAGER_INITIALIZED, data=game_manager)
         self.change_menu("game")
         self.reset()
 
@@ -76,8 +72,7 @@ class GameSettingsMenu(Menu):
             civ_selector.new_list([f"{player.name}-{player.civ_name}" for player in self.game_setup.players])
     
     def add_player(self) -> None:
-        self.game_setup.add_player(name=f"Player {len(self.game_setup.players)+1}", civ_name="Random", start_pos=Position(3*(len(self.game_setup.players)),0))
-
+        self.game_setup.add_player(name=f"Player {len(self.game_setup.players)+1}", civ_name="Random")
 
     def on_civ_selector_click(self) -> None:
         civ_selector = self.getObjectById("civselector")
@@ -87,32 +82,10 @@ class GameSettingsMenu(Menu):
         player_selected = self.game_setup.players[civ_selector.selected_index]
         self.current_popup = CivilizationSelectorPopup(self.game, self, player_selected)
 
-    def get_available_civilizations(self) -> list[str]:
-        civilizations = self.get_civilizations()
-        used_civilizations = [player.civ_name for player in self.game_setup.players]
-        available_civilizations = [civ for civ in civilizations if civ not in used_civilizations]
-        return available_civilizations
-
-    def get_random_civilization(self) -> list[Player]:
-        civilizations = self.get_civilizations()
-        civilizations = random.sample(civilizations, self.nb_players)
-        random.shuffle(civilizations)
-        return [Player(self.game, name=f"player{iplayer+1}", civ_name=civilization, start_position=Position(3*iplayer,0)) for iplayer, civilization in enumerate(civilizations)]
+    def get_players_labels(self) -> list[str]:
+        return [f"{player.name}-{player.civ_name}" for player in self.game_setup.players]
     
     def get_civilizations(self) -> list[str]:
         with open("data/config/civilisation.json", "r") as f:
-            civilizations = list(json.load(f).keys())
-        return civilizations
-    
-    def initialize_players(self) -> list[Player]:
-        return [Player(self.game, name=f"player{iplayer+1}", civ_name="Random", start_position=Position(3*iplayer,0)) for iplayer in range(self.nb_players)]
-    
-    def choose_random_civilizations(self) -> None:
-        civilizations = self.get_civilizations()
-        for player in self.game_setup.players:
-            if player.civ_name == "Random":
-                player.civ_name = random.choice(civilizations)
-                civilizations.remove(player.civ_name)
-
-    def get_players_labels(self) -> list[str]:
-        return [f"{player.name}-{player.civ_name}" for player in self.game_setup.players]
+            data = json.load(f)
+        return list(data.keys())
