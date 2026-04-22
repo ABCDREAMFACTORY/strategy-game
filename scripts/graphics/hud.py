@@ -4,12 +4,17 @@ import pygame
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, cast
 
-from ..core.Enums import ActionType
+from ..core.Enums import ActionType, Events
+from ..utils.EventManager import event_manager
+from ..core.GameData import game_data
 
 if TYPE_CHECKING:
-    from ..Menus.BaseMenu.Menu import Menu
-    from ..core.City import City
+    from ..core.gameManager import GameManager
     from ..core.Camera import Camera
+    from ..core.City import City
+    from ..core.Tile import Tile
+    from ..Menus.BaseMenu.Menu import Menu
+    from ..map.Map import Map
 
 class HUDElement:
     def __init__(self, id: str | int, x: int | float, y: int | float, is_position_relative: bool = False, layer: int = 0):
@@ -45,6 +50,17 @@ class Label(HUDElement):
         text_surf = font.render(self.text, True, (255, 255, 255))
         text_rect = text_surf.get_rect(center=center)
         screen.blit(text_surf, text_rect)
+
+class Border(HUDElement):
+    def __init__(self, id: str | int, x: int, y: int, width: int, height: int, color: tuple[int, int, int], is_position_relative: bool = False, layer: int = 0):
+        super().__init__(id, x, y, is_position_relative=is_position_relative, layer=layer)
+        self.rect = pygame.Rect(x, y, width, height)
+        self.color = color
+
+    def render(self, screen: pygame.Surface, font: pygame.font.Font, camera: Camera) -> None:
+        pos_x, pos_y = self.get_position(camera)
+        self.rect.topleft = (int(pos_x), int(pos_y))
+        pygame.draw.rect(screen, self.color, self.rect, width=2)
 
 
 class Button(HUDElement):
@@ -147,9 +163,77 @@ class Minimap(HUDElement):
     def __init__(self, id: str | int, x: int, y: int, width: int, height: int, is_position_relative: bool = False, layer: int = 0):
         super().__init__(id, x, y, is_position_relative=is_position_relative, layer=layer)
         self.rect = pygame.Rect(x, y, width, height)
+        event_manager.subscribe(Events.GAME_MANAGER_INITIALIZED, self.late_init)
+        self.terrains_color = {terrain: self._normalize_color(infos["minimap_color"]) for terrain, infos in game_data.data_terrains.items()}
+        self.cities_color = {civ: self._normalize_color(infos["minimap_city_color"]) for civ, infos in game_data.data_civilizations.items()}
+        self.civ_tiles_color = {civ: self._normalize_color(infos["color"]) for civ, infos in game_data.data_civilizations.items()}
+        
+        self.player_viewpoint = None
+    def late_init(self, game_manager: "GameManager")-> None:
+        self.game_manager = game_manager
+        if self.game_manager is None:
+            raise ValueError("Game manager not initialized yet, cannot initialize minimap.")
+        self.map = self.game_manager.map
+        mini_width = self.rect.width / self.map.width
+        mini_height = self.rect.height / self.map.height
+        self.scale = max(mini_width, mini_height)
+        # self.player_viewpoint = self.get_player_viewpoint()
+
+    # def get_player_viewpoint(self) -> Border:
+    #     camera = self.game_manager.game.camera
+    #     pos_x, pos_y = camera.world_to_screen(camera.x, camera.y)
+    #     pos_x = pos_x*self.scale+self.rect.x
+    #     pos_y = pos_y*self.scale+self.rect.y
+
+    #     world_width = self.map.width * len(self.map.tiles[0])
+    #     world_height = self.map.height * len(self.map.tiles)
+    #     world_width, world_height = camera.world_to_screen(world_width, world_height)
+    #     camera_width = world_width/camera.width
+    #     camera_height = world_height/camera.height
+    #     return Border("player_viewpoint", int(pos_x), int(pos_y), int(camera_width), int(camera_height), (255, 255, 255), is_position_relative=False, layer=0)
 
     def render(self, screen: pygame.Surface, font: pygame.font.Font, camera: Camera) -> None:
         pygame.draw.rect(screen, (50, 50, 50), self.rect)  # Minimap background
+        for y in range(self.map.height):
+            for x in range(self.map.width):
+                tile = self.map.tiles[y][x]
+                self.render_tile(screen, tile, x, y)
+        # if self.player_viewpoint is not None:
+        #     self.player_viewpoint.render(screen, font, camera)
+
+    def _normalize_color(self, color_value: Any) -> tuple[int, int, int]:
+        if isinstance(color_value, str):
+            color_obj = pygame.Color(color_value)
+            return (color_obj.r, color_obj.g, color_obj.b)
+        if isinstance(color_value, pygame.Color):
+            return (color_value.r, color_value.g, color_value.b)
+        if isinstance(color_value, (list, tuple)) and len(color_value) >= 3:
+            r = int(color_value[0])
+            g = int(color_value[1])
+            b = int(color_value[2])
+            return (
+                max(0, min(255, r)),
+                max(0, min(255, g)),
+                max(0, min(255, b)),
+            )
+        return (255, 255, 255)
+
+    def render_tile(self, screen: pygame.Surface, tile: Tile, x: int, y: int) -> None:
+        if tile.city is not None:
+            civ_name = tile.city.owner.civ_name
+            color: tuple[int, int, int] = self.cities_color.get(civ_name, (255, 255, 255))
+            gamma = 1.0
+        elif tile.owner is not None:
+            civ_name = tile.owner.civ_name
+            color: tuple[int, int, int] = self.civ_tiles_color.get(civ_name, (255, 255, 255))
+            gamma = 5.0
+        else:
+            color: tuple[int, int, int] = self.terrains_color.get(tile.terrain, (255, 255, 255))
+            gamma = 0.5
+
+        color_obj = pygame.Color(color[0], color[1], color[2])
+        corrected_color = color_obj.correct_gamma(gamma)
+        pygame.draw.rect(screen, corrected_color, (self.rect.x + x * self.scale, self.rect.y + y * self.scale, self.scale, self.scale))
 
 class CityNameLabel(Label):
     def __init__(self, id: str | int, x: int | float, y: int | float, city: City, layer: int = 1):

@@ -1,42 +1,52 @@
 {
     "France": {
         "color": "blue",
+        "minimap_city_color": [0, 255, 0],
         "cities": ["Paris", "Lyon", "Marseille"]
     },
     "England": {
         "color": "red",
+        "minimap_city_color": [255, 255, 255],
         "cities": ["London", "Manchester", "Liverpool"]
     },
     "Germany": {
         "color": "black",
+        "minimap_city_color": [255, 0, 0],
         "cities": ["Berlin", "Munich", "Hamburg"]
     },
     "Italy": {
         "color": "green",
+        "minimap_city_color": [255, 255, 0],
         "cities": ["Rome", "Milan", "Venice"]
     },
     "Spain": {
         "color": "yellow",
+        "minimap_city_color": [255, 0, 255],
         "cities": ["Madrid", "Barcelona", "Seville"]
     },
     "Japan": {
         "color": "white",
+        "minimap_city_color": [0, 255, 255],
         "cities": ["Tokyo", "Osaka", "Kyoto"]
     },
     "China": {
         "color": "red",
+        "minimap_city_color": [255, 255, 255],
         "cities": ["Beijing", "Shanghai", "Guangzhou"]
     },
     "USA": {
         "color": "blue",
+        "minimap_city_color": [0, 255, 0],
         "cities": ["New York", "Los Angeles", "Chicago"]
     },
     "Brazil": {
         "color": "green",
+        "minimap_city_color": [255, 255, 0],
         "cities": ["São Paulo", "Rio de Janeiro", "Salvador"]
     },
     "India": {
         "color": "orange",
+        "minimap_city_color": [255, 165, 0],
         "cities": ["Delhi", "Mumbai", "Bangalore"]
     }
 }

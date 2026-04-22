@@ -1,12 +1,5 @@
 from enum import Enum
 
-class TerrainType(Enum):
-    GRASS = 0
-    WATER = 1
-    MOUNTAIN = 2
-    FOREST = 3
-    DESERT = 4
-
 class ResourceType(Enum):
     NONE = -1
     FOOD = 0

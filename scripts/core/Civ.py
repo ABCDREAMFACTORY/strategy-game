@@ -32,7 +32,7 @@ class Civilisation:
                 print(self.player.civ_name, owner.civ_name, tile_pos)
                 raise ValueError(f"Cannot found city '{name}' at position {pos} because tile at {tile_pos} is already owned by civilisation {owner.civ_name}")
 
-        self.cities.append(City(name, pos))
+        self.cities.append(City(name, pos, self.player))
         self.game.map.get_tile(self._to_map_coords(pos)).city = self.cities[-1]
         for tile_pos in self.game.map.get_tiles_in_radius(self._to_map_coords(pos), radius=1):
             self.game.map.get_tile(self._to_map_coords(tile_pos)).owner = self.player

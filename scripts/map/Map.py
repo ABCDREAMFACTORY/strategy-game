@@ -5,8 +5,8 @@ import json
 from random import choice
 from typing import Any
 
+from ..core.GameData import game_data
 from ..core.Enums import ResourceType
-from ..core.Enums import TerrainType
 from ..core.Tile import Tile
 from ..core.Position import Position
 
@@ -44,7 +44,7 @@ class Map:
                 "tiles": [
                     [
                         [
-                            tile.terrain.value,
+                            tile.terrain,
                             tile.resource.value,
                             tile.unit,  #Problème: unit est une classe
                             tile.city,
@@ -63,7 +63,7 @@ class Map:
             "tiles": [
                 [
                     {
-                        "terrain": tile.terrain.value,
+                        "terrain": tile.terrain,
                         "resource": tile.resource.value,
                         "unit": tile.unit,
                         "city": tile.city,
@@ -103,7 +103,7 @@ class Map:
         width = data["width"]
         height = data["height"]
         tiles: list[list[Tile]] = [
-            [Tile(TerrainType.GRASS, ResourceType.FOOD) for _ in range(width)] for _ in range(height)
+            [Tile("grass", ResourceType.FOOD) for _ in range(width)] for _ in range(height)
         ]
 
         first_tile = data["tiles"][0][0] if data.get("tiles") and data["tiles"][0] else None
@@ -113,14 +113,14 @@ class Map:
             for i in range(width):
                 tile_data = data["tiles"][j][i]
                 if compact_format:
-                    terrain = TerrainType(tile_data[0])
+                    terrain = tile_data[0]
                     resource = ResourceType(tile_data[1])
                     unit = tile_data[2]
                     city = tile_data[3]
                     visible = bool(tile_data[4])
                     explored = bool(tile_data[5])
                 else:
-                    terrain = TerrainType(tile_data["terrain"])
+                    terrain = tile_data["terrain"]
                     resource = ResourceType(tile_data["resource"])
                     unit = tile_data["unit"]
                     city = tile_data["city"]
@@ -144,13 +144,13 @@ class Map:
             width=width,
             height=height,
             tiles=[
-                [Tile(terrain=choice(list(TerrainType)), resource=choice(list(ResourceType))) for _ in range(width)]
+                [Tile(terrain=choice(list(game_data.data_terrains.keys())), resource=choice(list(ResourceType))) for _ in range(width)]
                 for _ in range(height)
             ],
         )
 
     def __str__(self) -> str:
         return "\n".join(
-            ["".join([f"{tile.terrain.name[0]}{tile.resource.name[0]}" for tile in row]) for row in self.tiles]
+            ["".join([f"{tile.terrain[0]}{tile.resource.name[0]}" for tile in row]) for row in self.tiles]
         )
 

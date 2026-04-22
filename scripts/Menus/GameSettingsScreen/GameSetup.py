@@ -1,11 +1,11 @@
 import random
 from enum import Enum
-from ...core.Enums import ResourceType, TerrainType
+from ...core.Enums import ResourceType
 from ...core.Player import Player
 from ...core.gameManager import GameManager
 from ...core.Position import Position
 from ...core.Tile import Tile
-from ...core.GameData import GameData
+from ...core.GameData import GameData, game_data
 from ...map.Map import Map
 
 from typing import TYPE_CHECKING, cast
@@ -52,7 +52,7 @@ class GameSetup:
             
 
 class TileSetup:
-    def __init__(self, terrain: TerrainType, resource: ResourceType):
+    def __init__(self, terrain: str, resource: ResourceType):
         self.terrain = terrain
         self.resource = resource
         self.owner:"PlayerSetup|None" = None
@@ -84,10 +84,10 @@ class MapSetup:
         return tile
     
     def generate_map(self) -> list[list[TileSetup]]:
-        tiles:list[list[TileSetup]] = [[TileSetup(TerrainType.GRASS, ResourceType.GOLD) for _ in range(self.width)] for _ in range(self.height)]
+        tiles:list[list[TileSetup]] = [[TileSetup("grass", ResourceType.GOLD) for _ in range(self.width)] for _ in range(self.height)]
         for y in range(self.height):
             for x in range(self.width):
-                terrain = random.choice(list(TerrainType))
+                terrain = random.choice(list(game_data.data_terrains.keys()))
                 resource = random.choice(list(ResourceType))
                 tiles[y][x] = TileSetup(terrain=terrain, resource=resource)
         return tiles

@@ -23,4 +23,10 @@ class Player:
     def initialize_civilisation(self, game_manager:"GameManager") -> None:
         if game_manager is None:
             raise ValueError("Game manager is not initialized yet")
+        # A Player should initialize exactly once per game creation.
+        # Unsubscribing avoids stale Players from previous sessions reacting
+        # when a new game is started from the menu.
+        event_manager.unsubscribe(Events.GAME_MANAGER_INITIALIZED, self.initialize_civilisation)
+        if self.civ is not None:
+            return
         self.civ = Civilisation(self, game_manager, self.civ_name, self.start_position)

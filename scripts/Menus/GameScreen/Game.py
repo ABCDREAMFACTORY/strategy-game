@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 class GameMenu(Menu):
     def __init__(self, game: Game):
         self.game: Game = game
-        objects: list[HUDElement] = [
+        objects: list[Button | Minimap] = [
             Button(id=1,x=game.width-200, y=game.height-50, width=200, height=50, text="Back to main menu", func=lambda: self.back_to_main_menu()),
             Minimap(id=2, x=10, y=game.height-210, width=200, height=200, is_position_relative=False)
         ]

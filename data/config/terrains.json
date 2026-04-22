@@ -1,0 +1,27 @@
+{
+    "grass": {
+        "minimap_color": [0, 180, 0],
+        "movement_cost": 1,
+        "defense_bonus": 0
+    },
+    "water": {
+        "minimap_color": [0, 0, 180],
+        "movement_cost": 2,
+        "defense_bonus": -1
+    },
+    "mountain": {
+        "minimap_color": [128, 128, 128],
+        "movement_cost": 3,
+        "defense_bonus": 2
+    },
+    "forest": {
+        "minimap_color": [34, 139, 34],
+        "movement_cost": 2,
+        "defense_bonus": 1
+    },
+    "desert": {
+        "minimap_color": [210, 180, 140],
+        "movement_cost": 2,
+        "defense_bonus": -1
+    }
+}
