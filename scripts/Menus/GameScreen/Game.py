@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 
 from ..BaseMenu.Menu import Menu
-from ...graphics.hud import HUDElement, Button, CityNameLabel
+from ...graphics.hud import HUDElement, Button, CityNameLabel, Minimap  
 from ...core.Camera import Camera
 from ...core.gameManager import GameManager
 from ...utils.EventManager import event_manager
@@ -18,7 +18,8 @@ class GameMenu(Menu):
     def __init__(self, game: Game):
         self.game: Game = game
         objects: list[HUDElement] = [
-            Button(id=1,x=game.width-200, y=game.height-50, width=200, height=50, text="Back to main menu", func=lambda: self.back_to_main_menu())
+            Button(id=1,x=game.width-200, y=game.height-50, width=200, height=50, text="Back to main menu", func=lambda: self.back_to_main_menu()),
+            Minimap(id=2, x=10, y=game.height-210, width=200, height=200, is_position_relative=False)
         ]
         super().__init__(game, "game", objects)
         self.camera: Camera = Camera(width=game.width, height=game.height)

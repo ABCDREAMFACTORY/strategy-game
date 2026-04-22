@@ -7,6 +7,10 @@ from ...graphics.hud import HUDElement
 from ...core.Enums import ActionType
 
 if TYPE_CHECKING:
+    from ...core.Camera import Camera
+    from ...core.game import Game
+
+if TYPE_CHECKING:
     import pygame
     from ...Popups.Popup import Popup
     from ...core.game import Game
@@ -19,7 +23,7 @@ class Menu:
         self.background: pygame.Surface | None = background
         self.current_popup: Popup | None = None
 
-    def render(self, screen: pygame.Surface, font: pygame.font.Font, camera: object) -> None:
+    def render(self, screen: pygame.Surface, font: pygame.font.Font, camera: Camera) -> None:
         for obj in self.objects:
             obj.render(screen, font, camera)
         if self.current_popup is not None:
@@ -37,6 +41,7 @@ class Menu:
         if menu_name in self.game.menus:
             self.reset()
             self.game.current_menu = self.game.menus[menu_name]
+            self.game.current_menu.sort()
         else:
             raise ValueError(f"Menu '{menu_name}' not found!")
         
@@ -52,3 +57,10 @@ class Menu:
     
     def get_popup(self) -> Popup | None:
         return self.current_popup
+    
+    def add_object(self, obj: HUDElement) -> None:
+        self.objects.append(obj)
+        self.sort()
+        
+    def sort(self) -> None:
+        self.objects.sort(key=lambda o: o.layer, reverse=True)
