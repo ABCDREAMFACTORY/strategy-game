@@ -169,6 +169,7 @@ class Minimap(HUDElement):
         self.civ_tiles_color = {civ: self._normalize_color(infos["color"]) for civ, infos in game_data.data_civilizations.items()}
         
         self.player_viewpoint = None
+
     def late_init(self, game_manager: "GameManager")-> None:
         self.game_manager = game_manager
         if self.game_manager is None:
@@ -177,29 +178,47 @@ class Minimap(HUDElement):
         mini_width = self.rect.width / self.map.width
         mini_height = self.rect.height / self.map.height
         self.scale = max(mini_width, mini_height)
-        # self.player_viewpoint = self.get_player_viewpoint()
+        self.player_viewpoint = self.get_player_viewpoint()
 
-    # def get_player_viewpoint(self) -> Border:
-    #     camera = self.game_manager.game.camera
-    #     pos_x, pos_y = camera.world_to_screen(camera.x, camera.y)
-    #     pos_x = pos_x*self.scale+self.rect.x
-    #     pos_y = pos_y*self.scale+self.rect.y
+    def get_player_viewpoint(self) -> Border:
+        camera = self.game_manager.game.camera
+        tile_size = self.game_manager.game.renderer.assets.tile_size
+        tile_space = self.game_manager.game.renderer.assets.tile_space
+        game_width = (self.map.width) * (tile_size + tile_space)
+        game_height = (self.map.height) * (tile_size + tile_space)
+        pos_x = camera.x * self.rect.width / game_width + self.x
+        pos_y = camera.y * self.rect.height / game_height + self.y
+        camera_width = camera.width * self.rect.width / game_width
+        camera_height = camera.height * self.rect.height / game_height
+        return Border("player_viewpoint", int(pos_x), int(pos_y), int(camera_width), int(camera_height), (255, 255, 255), is_position_relative=False, layer=0)
 
-    #     world_width = self.map.width * len(self.map.tiles[0])
-    #     world_height = self.map.height * len(self.map.tiles)
-    #     world_width, world_height = camera.world_to_screen(world_width, world_height)
-    #     camera_width = world_width/camera.width
-    #     camera_height = world_height/camera.height
-    #     return Border("player_viewpoint", int(pos_x), int(pos_y), int(camera_width), int(camera_height), (255, 255, 255), is_position_relative=False, layer=0)
+    def get_pos_player_viewpoint(self) -> tuple[int, int]:
+        camera = self.game_manager.game.camera
+        tile_size = self.game_manager.game.renderer.assets.tile_size
+        tile_space = self.game_manager.game.renderer.assets.tile_space
+        game_width = (self.map.width) * (tile_size + tile_space)
+        game_height = (self.map.height) * (tile_size + tile_space)
+        pos_x = camera.x * self.rect.width / game_width + self.x
+        pos_y = camera.y * self.rect.height / game_height + self.y
+        return int(pos_x), int(pos_y)
 
     def render(self, screen: pygame.Surface, font: pygame.font.Font, camera: Camera) -> None:
-        pygame.draw.rect(screen, (50, 50, 50), self.rect)  # Minimap background
-        for y in range(self.map.height):
-            for x in range(self.map.width):
-                tile = self.map.tiles[y][x]
-                self.render_tile(screen, tile, x, y)
-        # if self.player_viewpoint is not None:
-        #     self.player_viewpoint.render(screen, font, camera)
+        previous_clip = screen.get_clip()
+        screen.set_clip(self.rect)
+        try:
+            pygame.draw.rect(screen, (50, 50, 50), self.rect)  # Minimap background
+            for y in range(self.map.height):
+                for x in range(self.map.width):
+                    tile = self.map.tiles[y][x]
+                    self.render_tile(screen, tile, x, y)
+            if self.player_viewpoint is not None:
+                self.player_viewpoint.render(screen, font, camera)
+        finally:
+            screen.set_clip(previous_clip)
+
+    def update(self, actions_pressed: set[ActionType], camera: Camera) -> None:
+        if self.player_viewpoint is not None:
+            self.player_viewpoint.x, self.player_viewpoint.y = self.get_pos_player_viewpoint()
 
     def _normalize_color(self, color_value: Any) -> tuple[int, int, int]:
         if isinstance(color_value, str):
