@@ -11,13 +11,12 @@ from ..core.Enums import Events
 if TYPE_CHECKING:
     from .gameManager import GameManager
     from .Player import Player
+    from ..map.Map import Map
 
 class Civilisation:
-    def __init__(self,player:"Player", game_manager: GameManager, name: str, start_position: Position, is_player: bool = True) -> None:
-        if game_manager is None:
-            raise ValueError("game_manager must be initialized before creating a Civilisation")
+    def __init__(self,player:"Player", map:Map, name: str, start_position: Position, is_player: bool = True) -> None:
         self.player = player
-        self.game: GameManager = game_manager
+        self.map = map
         self.name: str = name
         data = self.get_data()
         self.color: Any = data["color"]
@@ -26,16 +25,16 @@ class Civilisation:
         self.is_player: bool = is_player
     
     def add_city(self, name: str, pos: Position | tuple[int, int]) -> None:
-        for tile_pos in self.game.map.get_tiles_in_radius(self._to_map_coords(pos), radius=1):
-            owner = self.game.map.get_tile(self._to_map_coords(tile_pos)).owner
+        for tile_pos in self.map.get_tiles_in_radius(self._to_map_coords(pos), radius=1):
+            owner = self.map.get_tile(self._to_map_coords(tile_pos)).owner
             if owner is not self.player and owner is not None:
                 print(self.player.civ_name, owner.civ_name, tile_pos)
                 raise ValueError(f"Cannot found city '{name}' at position {pos} because tile at {tile_pos} is already owned by civilisation {owner.civ_name}")
 
         self.cities.append(City(name, pos, self.player))
-        self.game.map.get_tile(self._to_map_coords(pos)).city = self.cities[-1]
-        for tile_pos in self.game.map.get_tiles_in_radius(self._to_map_coords(pos), radius=1):
-            self.game.map.get_tile(self._to_map_coords(tile_pos)).owner = self.player
+        self.map.get_tile(self._to_map_coords(pos)).city = self.cities[-1]
+        for tile_pos in self.map.get_tiles_in_radius(self._to_map_coords(pos), radius=1):
+            self.map.get_tile(self._to_map_coords(tile_pos)).owner = self.player
 
         event_manager.notify(Events.FOUNDED_CITY, data=self.cities[-1])
 

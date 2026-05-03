@@ -45,11 +45,7 @@ class GameMenu(Menu):
     def update(self, actions_pressed: set[ActionType]) -> None:
         self.camera.update(actions_pressed)
 
-    async def on_city_founded(self, city: City) -> None:
-
-        if self.game_manager is None:
-            print("Game manager not initialized yet,")
-            await event_manager.wait_for(Events.GAME_MANAGER_INITIALIZED)
+    def on_city_founded(self, city: City) -> None:
 
         tile_size = self.game.renderer.assets.tile_size
         tile_space = self.game.renderer.assets.tile_space

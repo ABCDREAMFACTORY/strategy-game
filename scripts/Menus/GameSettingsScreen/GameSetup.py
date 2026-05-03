@@ -22,11 +22,7 @@ class PlayerSetup:
 
     def __repr__(self) -> str:
         return f"PlayerSetup(name={self.name}, civ_name={self.civ_name}, start_pos={self.start_pos})"
-    
-    def to_player(self) -> Player:
-        if self.start_pos is None:
-            raise ValueError(f"Player {self.name} does not have a start position assigned")
-        return Player(self.game, self.name, self.civ_name, self.start_pos)
+
 
 class GameSetup:
     class MapType(Enum):
@@ -133,7 +129,7 @@ class GameManagerInitializer:
     def initialize_game_manager(self) -> GameManager:
         self.choose_spawn_positions()
         self.choose_random_civilizations()
-        players = [Player(self.game, ps.name, ps.civ_name, ps.start_pos) for ps in self.game_setup.players if ps.start_pos is not None]
+        players = [Player(self.map, ps.name, ps.civ_name, ps.start_pos) for ps in self.game_setup.players if ps.start_pos is not None]
         width, height = self.game_setup.map_size.value
         return GameManager(self.game, players, self.map, map_width=width, map_height=height)
 
