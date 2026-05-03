@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from .Player import Player
 
 class City:
-    def __init__(self, name: str, pos: Position | tuple[int, int], owner:Player) -> None:
+    def __init__(self, name: str, pos: Position, owner:Player) -> None:
         self.name: str = name
-        self.pos: Position | tuple[int, int] = pos
+        self.pos: Position = pos
         self.owner = owner
