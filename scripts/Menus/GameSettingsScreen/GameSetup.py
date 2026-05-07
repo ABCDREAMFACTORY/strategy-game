@@ -7,6 +7,7 @@ from ...core.Position import Position
 from ...core.Tile import Tile
 from ...core.GameData import GameData, game_data
 from ...map.Map import Map
+from ...map.MapGenerator import MapGenerator
 
 from typing import TYPE_CHECKING, cast
 if TYPE_CHECKING:
@@ -81,12 +82,10 @@ class MapSetup:
         return tile
     
     def generate_map(self) -> list[list[TileSetup]]:
-        tiles:list[list[TileSetup]] = [[TileSetup("grass", ResourceType.GOLD, Position(i,j)) for i in range(self.width)] for j in range(self.height)]
-        for y in range(self.height):
-            for x in range(self.width):
-                terrain = random.choice(list(game_data.data_terrains.keys()))
-                resource = random.choice(list(ResourceType))
-                tiles[y][x] = TileSetup(terrain=terrain, resource=resource, pos=Position(x, y))
+        map_generator = MapGenerator(seed=random.randint(0, 999999999), map_size=self.width, biome_size=10)
+        map_generator.gen_matrice()
+        tiles = [[TileSetup(terrain="grass", resource=ResourceType.GOLD, pos=Position(x, y)) for x in range(self.width)] for y in range(self.height)]
+        map_generator.convert_map_to_tiles(tiles)
         return tiles
     
     def to_map(self) -> "Map":
