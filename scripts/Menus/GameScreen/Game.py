@@ -3,11 +3,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 
 from ..BaseMenu.Menu import Menu
-from ...graphics.hud import HUDElement, Button, CityNameLabel, Minimap  
+from ...graphics.hud import HUDElement, Button, CityNameLabel, Minimap, Border  
 from ...core.Camera import Camera
 from ...core.gameManager import GameManager
 from ...utils.EventManager import event_manager
 from ...core.Enums import Events, ActionType
+from ...core.Tile import Tile
 
 if TYPE_CHECKING:
     from ...core.City import City
@@ -26,7 +27,12 @@ class GameMenu(Menu):
         self.base_objects: list[HUDElement] = list(objects)
 
         self.game_manager: GameManager | None = None
-        event_manager.subscribe(Events.FOUNDED_CITY, self.on_city_founded)        
+        event_manager.subscribe(Events.FOUNDED_CITY, self.on_city_founded)       
+        event_manager.subscribe(Events.ON_CLICK, self.on_click) 
+        event_manager.subscribe(Events.TILE_CLICKED, self.on_tile_clicked)
+
+
+        self.tile_with_border: Tile | None = None
 
     def reset_session(self) -> None:
         self.objects = list(self.base_objects)
@@ -34,6 +40,7 @@ class GameMenu(Menu):
         self.camera.x = 0
         self.camera.y = 0
         self.camera.zoom = 1.0
+        self.tile_with_border = None
 
     def reset(self) -> None:
         self.reset_session()
@@ -53,4 +60,39 @@ class GameMenu(Menu):
         co_x += tile_size // 2
 
         city_name_label = CityNameLabel(id=city.name, x=co_x, y=co_y, city=city)
-        self.objects.append(city_name_label)
+        self.add_object(city_name_label)
+
+    def on_click(self, pos: tuple[int, int]) -> None:
+        if not self.game_manager:
+            return
+        if self.is_current_menu() == False:
+            return
+        game_pos = self.camera.screen_to_game(pos[0], pos[1], self.game.renderer.assets.tile_size, self.game.renderer.assets.tile_space)
+        if self.game_manager.map.is_within_bounds(game_pos) == False:
+            return
+        tile = self.game_manager.map.get_tile(game_pos)
+        event_manager.notify(Events.TILE_CLICKED, data=tile)
+
+    def on_tile_clicked(self, tile: "Tile") -> None:
+        
+        co_x, co_y = self.camera.game_to_world(tile.pos.x, tile.pos.y, self.game.renderer.assets.tile_size, self.game.renderer.assets.tile_space)
+        if self.tile_with_border is None:
+            border = Border(id="TileBorder", x=int(co_x), y=int(co_y), width=self.game.renderer.assets.tile_size, height=self.game.renderer.assets.tile_size, color=(255, 0, 0), is_position_relative=True, layer=2)
+            self.add_object(border)
+            self.tile_with_border = tile
+            return
+
+        elif self.tile_with_border.pos == tile.pos:
+            tile_border = self.getObjectById("TileBorder")
+            if tile_border:
+                self.objects.remove(tile_border)
+                self.tile_with_border = None
+                return
+        else:
+            tile_border = self.getObjectById("TileBorder")
+            if tile_border:
+                tile_border.x = int(co_x)
+                tile_border.y = int(co_y)
+                self.tile_with_border = tile
+                return
+        

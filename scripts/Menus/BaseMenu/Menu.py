@@ -64,3 +64,8 @@ class Menu:
         
     def sort(self) -> None:
         self.objects.sort(key=lambda o: o.layer, reverse=True)
+
+    def is_current_menu(self) -> bool:
+        if self.game.current_menu is None:
+            return False
+        return self.game.current_menu == self.game.menus[self.name] # type: ignore

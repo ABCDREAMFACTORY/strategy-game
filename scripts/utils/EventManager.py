@@ -20,7 +20,7 @@ class EventManager:
             self._listeners[event_type].remove(listener)
 
     def notify(self, event_type: Events, data: Any = None) -> None:
-        print(f"Event triggered: {event_type}, data: {data}")
+        print(f"Event triggered: {event_type}, data: {data}, listeners: {len(self._listeners.get(event_type, []))}")
         if event_type in self._listeners:
             for listener in self._listeners[event_type]:
                 listener(data)

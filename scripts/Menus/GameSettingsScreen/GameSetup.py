@@ -48,11 +48,12 @@ class GameSetup:
             
 
 class TileSetup:
-    def __init__(self, terrain: str, resource: ResourceType):
+    def __init__(self, terrain: str, resource: ResourceType, pos: Position) -> None:
         self.terrain = terrain
         self.resource = resource
         self.owner:"PlayerSetup|None" = None
         self.city = None
+        self.pos = pos
     def get_neighbors(self, pos: Position, map: "MapSetup") -> list["TileSetup"]:
         neighbors:list[TileSetup] = []
         for dy in range(-1, 2):
@@ -66,7 +67,7 @@ class TileSetup:
         return neighbors
     
     def to_tile(self) -> Tile:
-        return Tile(terrain=self.terrain, resource=self.resource, owner=None, city=None)
+        return Tile(terrain=self.terrain, resource=self.resource, owner=None, city=None, pos=self.pos)
 
 class MapSetup:
     def __init__(self, game_setup: GameSetup):
@@ -80,12 +81,12 @@ class MapSetup:
         return tile
     
     def generate_map(self) -> list[list[TileSetup]]:
-        tiles:list[list[TileSetup]] = [[TileSetup("grass", ResourceType.GOLD) for _ in range(self.width)] for _ in range(self.height)]
+        tiles:list[list[TileSetup]] = [[TileSetup("grass", ResourceType.GOLD, Position(i,j)) for i in range(self.width)] for j in range(self.height)]
         for y in range(self.height):
             for x in range(self.width):
                 terrain = random.choice(list(game_data.data_terrains.keys()))
                 resource = random.choice(list(ResourceType))
-                tiles[y][x] = TileSetup(terrain=terrain, resource=resource)
+                tiles[y][x] = TileSetup(terrain=terrain, resource=resource, pos=Position(x, y))
         return tiles
     
     def to_map(self) -> "Map":

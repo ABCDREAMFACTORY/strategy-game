@@ -33,7 +33,9 @@ class Map:
                     tiles_in_radius.append((x, y))
         return tiles_in_radius
     
-    
+    def is_within_bounds(self, pos: tuple[int, int]) -> bool:
+        x, y = pos
+        return 0 <= x < self.width and 0 <= y < self.height
     
     def to_dict(self, compact: bool = True) -> dict[str, Any]:
         if compact:

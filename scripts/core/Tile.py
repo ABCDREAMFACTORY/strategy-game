@@ -1,5 +1,7 @@
 from .Enums import ResourceType
 from typing import TYPE_CHECKING
+from .Position import Position
+
 if TYPE_CHECKING:
     from .Civ import Civilisation
     from .Player import Player
@@ -14,6 +16,7 @@ class Tile:
         owner: "Player | None" = None,
         visible: bool = False,
         explored: bool = False,
+        pos: Position = Position(0, 0)
     ) -> None:
         self.terrain: str = terrain
         self.resource: ResourceType = resource
@@ -22,3 +25,4 @@ class Tile:
         self.owner: Player | None = owner
         self.visible: bool = visible
         self.explored: bool = explored
+        self.pos = pos

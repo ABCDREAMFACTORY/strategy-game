@@ -5,6 +5,8 @@ import pygame
 from typing import TYPE_CHECKING
 
 from .Enums import ActionType
+from ..utils.EventManager import event_manager
+from ..core.Enums import Events
 
 if TYPE_CHECKING:
     from .game import Game
@@ -58,14 +60,12 @@ class InputHandler:
             if button is not None:
                 if button in self.mouse_bindings:
                     self.actions_pressed.add(action)
+                    if button == 1 and key == pygame.MOUSEBUTTONUP:
+                        event_manager.notify(Events.ON_CLICK, data=event.pos)
                     return True
                 else:
                     return False
             self.actions_pressed.add(action)
-            if key == pygame.MOUSEBUTTONDOWN:
-                self.is_mouse_down = True
-            elif key == pygame.MOUSEBUTTONUP:
-                self.is_mouse_down = False
             return True
         return False
 

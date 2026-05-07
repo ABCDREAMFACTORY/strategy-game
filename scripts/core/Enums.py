@@ -38,3 +38,9 @@ class Events(Enum):
     TILE_CLICKED = 0
     FOUNDED_CITY = 1
     GAME_MANAGER_INITIALIZED = 2
+    ON_CLICK = 3
+
+class Mode(Enum):
+    SINGLE_PLAYER_AI = 0
+    SINGLE_PLAYER_LOCAL = 1
+    MULTIPLAYER = 1
