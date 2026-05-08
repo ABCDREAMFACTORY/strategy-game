@@ -82,7 +82,7 @@ class MapSetup:
         return tile
     
     def generate_map(self) -> list[list[TileSetup]]:
-        map_generator = MapGenerator(seed=random.randint(0, 999999999), map_size=self.width, biome_size=10)
+        map_generator = MapGenerator(seed=random.randint(0, 999999999), map_size=self.width, biome_size=11)
         map_generator.gen_matrice()
         tiles = [[TileSetup(terrain="grass", resource=ResourceType.GOLD, pos=Position(x, y)) for x in range(self.width)] for y in range(self.height)]
         map_generator.convert_map_to_tiles(tiles)
