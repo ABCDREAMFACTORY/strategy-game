@@ -31,13 +31,13 @@ class MapGenerator:
                 newpos = self.calc_new_pos(vect,x,y)
                 if newpos != None:
                     self.map[newpos[0]][newpos[1]]["altitude"] = 1
-                    self.lissage_map(x,y,"altitude")
+                    self.lissage_map(newpos[0],newpos[1],"altitude")
 
                 vect = self.create_vec_from_seed_and_pos(x,y,self.seed+1)
                 newpos = self.calc_new_pos(vect,x,y)
                 if newpos != None:
                     self.map[newpos[0]][newpos[1]]["humidity"] = 1
-                    self.lissage_map(x,y,"humidity")
+                    self.lissage_map(newpos[0],newpos[1],"humidity")
                 print(f"x={x} y={y}")
 
 
