@@ -3,11 +3,7 @@
         "minimap_color": [0, 180, 0],
         "movement_cost": 1,
         "defense_bonus": 0,
-<<<<<<< main
-        "altitude": 0.5,
-=======
         "altitude": 0.3,
->>>>>>> main
         "humidity": 0.5
     },
     "water": {
@@ -28,22 +24,14 @@
         "minimap_color": [34, 139, 34],
         "movement_cost": 2,
         "defense_bonus": 1,
-<<<<<<< main
-        "altitude": 0.6,
-=======
         "altitude": 0.3,
->>>>>>> main
         "humidity": 0.7
     },
     "desert": {
         "minimap_color": [210, 180, 140],
         "movement_cost": 2,
         "defense_bonus": -1,
-<<<<<<< main
-        "altitude": 0.5,
-=======
         "altitude": 0.4,
->>>>>>> main
         "humidity": 0
     }
 }
