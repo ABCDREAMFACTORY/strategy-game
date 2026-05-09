@@ -10,8 +10,8 @@
         "minimap_color": [0, 0, 180],
         "movement_cost": 2,
         "defense_bonus": -1,
-        "altitude": 0.3,
-        "humidity": 1
+        "altitude": 0.2,
+        "humidity": 0.6
     },
     "mountain": {
         "minimap_color": [128, 128, 128],
