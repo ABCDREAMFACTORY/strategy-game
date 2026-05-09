@@ -38,7 +38,12 @@ class MapGenerator:
                 newpos = self.calc_new_pos(vect,x,y)
                 if newpos != None:
                     self.map[newpos[0]][newpos[1]]["humidity"] = 1
+<<<<<<< HEAD
                     self.lissage_map(newpos[0],newpos[1],"humidity")
+=======
+                    self.lissage_map(x,y,"humidity")
+
+>>>>>>> 0ba4452 (remove unused print)
 
 
         print(self.calc_moyenne("altitude"))
