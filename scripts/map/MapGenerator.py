@@ -7,6 +7,7 @@ class MapGenerator:
 
     def __init__(self, seed: int, map_size: int,biome_size: int):
 
+        self.coef_dif_biome = {"altitude":0.5,"humidity":0.5}
         self.biome_size =biome_size
         self.map_size = map_size
         self.seed = seed
@@ -20,7 +21,7 @@ class MapGenerator:
         for elem in data.keys():
             self.altitude_tile[elem] = data[elem]["altitude"]
             self.humidity_tile[elem] = data[elem]["humidity"]
-        print(self.altitude_tile,"\n",self.humidity_tile)
+
 
 
     def gen_matrice(self):
@@ -38,10 +39,11 @@ class MapGenerator:
                 if newpos != None:
                     self.map[newpos[0]][newpos[1]]["humidity"] = 1
                     self.lissage_map(newpos[0],newpos[1],"humidity")
-                print(f"x={x} y={y}")
 
 
-        return self.map
+        print(self.calc_moyenne("altitude"))
+        print(self.calc_moyenne("humidity"))
+
 
 
     def create_vec_from_seed_and_pos(self, posx, posy,seed):
@@ -96,15 +98,17 @@ class MapGenerator:
 
 
     def lissage_map(self,posx,posy,canal):
+
         wait_list = [(posx,posy)]
         already_check = set()
         cursor = 0
         while len(wait_list) != cursor:
             current_elem = wait_list[cursor]
-
+            coef_dif_biome = self.coef_dif_biome[canal]
             dist = self.distance((posx,posy),current_elem)
             if  dist < 10:
-                val_to_add = exp(dist*-0.25)
+
+                val_to_add = exp(dist*-1*coef_dif_biome)
                 if self.map_final[current_elem[0]][current_elem[1]][canal] + val_to_add > 1:
                     self.map_final[current_elem[0]][current_elem[1]][canal] = 1
                 else:
@@ -135,6 +139,14 @@ class MapGenerator:
                 tile_stats = self.map_final[x][y]
                 tile_type = self.stats_to_tile(tile_stats)
                 tiles[y][x].terrain = tile_type
+
+
+    def calc_moyenne(self,canal):
+        moyenne  = 0
+        for i in range(self.map_size):
+            for j in range(self.map_size):
+                moyenne += self.map_final[i][j][canal]
+        return moyenne/(self.map_size**2)
 
     def __str__(self):
         lines = []
